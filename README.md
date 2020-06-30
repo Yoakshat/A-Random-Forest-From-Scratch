@@ -1,2 +1,2 @@
 # Unoptimized-random-forrest-SCRATCH
-Gives a 76.555% on the Titanic Machine Learning Kaggle Competition with 100 bootstrapped datasets
+Gives a 77.033% on the Titanic Machine Learning Kaggle Competition with 10 bootstrapped datasets
