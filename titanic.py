@@ -8,21 +8,9 @@ import random
 
 import math
 
-#allows us to visually see if statistically significant
-def test(column):
-    col = sank[[column]]
-    col.plot.hist(bins = 12, alpha = 1)
-    plt.show()
-
-def all(column):
-    col = trainingData[[column]]
-    col.plot.hist(bins=12, alpha=1)
-    plt.show()
-
 #get data
 trainingData = pd.read_csv('titanic/train.csv', delimiter = ',')
 testData = pd.read_csv('titanic/test.csv', delimiter = ',')
-sank = trainingData.loc[trainingData['Survived'] == 0]
 
 #clean up data to be used
 cleanData = trainingData.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin'])
