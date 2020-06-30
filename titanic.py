@@ -25,8 +25,8 @@ testData = pd.read_csv('titanic/test.csv', delimiter = ',')
 sank = trainingData.loc[trainingData['Survived'] == 0]
 
 #clean up data to be used
-cleanData = trainingData.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin', 'Embarked'])
-shortData = testData.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin', 'Embarked'])
+cleanData = trainingData.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin'])
+shortData = testData.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin'])
 maxVar = int(math.sqrt(cleanData.shape[1]-1))
 
 #value 5 is arbritary
@@ -53,6 +53,7 @@ def init():
     numberOfWays[4]=[(0,2), (3,8)]
     numberOfWays[5]=[(0,2), (3,6)]
     numberOfWays[6]=[(0,200),(201,1000)]
+    numberOfWays[7]=['C', 'Q', 'S']
     
  
     #...
@@ -74,7 +75,7 @@ def GiniIndex(subset, icol):
     print(a)
     print(d)
     total = 0
-    if(icol==1 or icol==2):
+    if(icol==1 or icol==2 or icol == 7):
         for i in range(len(numberOfWays[icol])):
             g = len(a.loc[a[indexToName[icol]]==numberOfWays[icol][i]].index)
             h = len(d.loc[d[indexToName[icol]]==numberOfWays[icol][i]].index)
@@ -132,7 +133,7 @@ def BuildTree(startNode, subset, leafNode):
         #append to our list of decision trees
         train.append((startNode, cases[i]))
         #discrete
-        if(startNode == 1 or startNode == 2):
+        if(startNode == 1 or startNode == 2 or startNode == 7):
             nextSubset = notNull.loc[notNull[indexToName[startNode]]==cases[i]]
         #continuous
         else:
@@ -161,8 +162,8 @@ def DecisionTree(numberTrain):
     for i in range(numberTrain):
         train.clear()
         empty = list()
-        #replace with 1,2,3,4,5,6 -> only for testing
-        chooseCol.extend([1,2,3,4,5,6])
+        #replace with 1,2,3,4,5,6,7 -> only for testing
+        chooseCol.extend([1,2,3,4,5,6,7])
         for i2 in range(cleanData.shape[0]):
             rowNum = random.randint(1, cleanData.shape[0]-1)
             row = cleanData.iloc[rowNum]
@@ -209,7 +210,7 @@ def predict(arr, row):
             else:
                 if(pd.isnull(row[arr[i][count][index][0]])==True):
                     #input random data in table
-                    if(arr[i][count][index][0]==1 or arr[i][count][index][0]==2):
+                    if(arr[i][count][index][0]==1 or arr[i][count][index][0]==2 or arr[i][count][index][0]==7):
                         num = random.randint(0, len(numberOfWays[arr[i][count][index][0]])-1)
                         row[arr[i][count][index][0]] = numberOfWays[arr[i][count][index][0]][num]
                     else:
@@ -217,7 +218,7 @@ def predict(arr, row):
                         findInRange = random.randint(numberOfWays[arr[i][count][index][0]][num][0], numberOfWays[arr[i][count][index][0]][num][1])
                         row[arr[i][count][index][0]] = findInRange
                 #discrete
-                if(arr[i][count][index][0]==1 or arr[i][count][index][0]==2):
+                if(arr[i][count][index][0]==1 or arr[i][count][index][0]==2 or arr[i][count][index][0]==7):
                     #check if satisfies constraint; then index+=1
                     if(row[arr[i][count][index][0]]==arr[i][count][index][1]):
                         index += 1
@@ -271,3 +272,11 @@ majority(100)
 
 df = pd.DataFrame(submitTree, columns=['Survived'])
 print(df)
+
+#This is one example of what we got - for one decision tree:
+#[[(3, (0, 30)), (5, (0, 2)), 1, '^', (5, (2, 6)), 1, '^', (3, (30, 60)), (4, (0, 2)), 1, '^', (4, (2, 8)), 1, '^', (3, (60, 120)), (6, (0, 200)), (2, 'male'), (1, 1), 0, '^', (1, 2), 0, '^', (1, 3), 0, '^', (2, 'female'), 1, '^', (6, (200, 1000)), 0, '^']]
+
+#This is our finalParsed:
+#[[[(6, (0, 200)), (1, 1), (3, (0, 30)), (2, 'male'), 0], [(2, 'female'), 1], [(3, (30, 60)), 1], [(3, (60, 120)), 0], [(1, 2), 0], [(1, 3), (4, (0, 2)), (5, (0, 2)), 0], [(5, (2, 6)), 0], [(4, (2, 8)), 0], [(6, (200, 1000)), 1]], [[(6, (0, 200)), (1, 1), (3, (0, 30)), (2, 'male'), 0], [(2, 'female'), 1], [(3, (30, 60)), 1], [(3, (60, 120)), 0], [(1, 2), 0], [(1, 3), (4, (0, 2)), (5, (0, 2)), 0], [(5, (2, 6)), 0], [(4, (2, 8)), 0], [(6, (200, 1000)), 1]]]
+
+#split at "^"
